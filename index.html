@@ -68,10 +68,11 @@
   </div>
 
   <script>
-    let tasaCompra = 3.355;
-    let tasaVenta = 3.395;
+    // Tasas iniciales (editar aquí para cambiar globalmente)
+    let tasaCompra = 3.750;
+    let tasaVenta = 3.850;
     let modo = "compra";
-    const ADMIN_PIN = "cambiositalo"; // <-- PIN actualizado
+    const ADMIN_PIN = "261501"; // PIN de administrador
 
     const resultado = document.getElementById('resultado');
     const mostrarCompra = document.getElementById('mostrarTasaCompra');
@@ -150,21 +151,15 @@
     function guardarTasas() {
       tasaCompra = parseFloat(document.getElementById('tasaCompra').value).toFixed(3);
       tasaVenta = parseFloat(document.getElementById('tasaVenta').value).toFixed(3);
-      localStorage.setItem('tasaCompra', tasaCompra);
-      localStorage.setItem('tasaVenta', tasaVenta);
       actualizarTasas();
       actualizarResultado();
-      alert('✅ Tasas guardadas.');
+      alert('✅ Tasas actualizadas. Recuerda que este cambio se ve reflejado en todos los dispositivos al actualizar el archivo HTML.');
     }
 
-    // inicialización
-    const guardadaCompra = localStorage.getItem('tasaCompra');
-    const guardadaVenta = localStorage.getItem('tasaVenta');
-    if (guardadaCompra) tasaCompra = parseFloat(guardadaCompra);
-    if (guardadaVenta) tasaVenta = parseFloat(guardadaVenta);
-
+    // Inicialización
     actualizarTasas();
     actualizarResultado();
   </script>
 </body>
 </html>
+
