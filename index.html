@@ -94,18 +94,34 @@
     transform: translateY(-2px);
   }
 
+  .input-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
   input {
-    width: 60%;             /* ancho reducido */
+    width: 60%;
     padding: 10px 12px;
     font-size: 1rem;
     border-radius: 8px;
     border: 1px solid #ccc;
-    margin-top: 8px;
-    text-align: center;     /* texto centrado */
+    text-align: center;
     transition: all 0.2s ease;
   }
 
-  input:focus {
+  select {
+    padding: 10px 12px;
+    font-size: 1rem;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    background-color: #f9f9f9;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  input:focus, select:focus {
     border-color: #007bff;
     outline: none;
     box-shadow: 0 0 5px rgba(0,123,255,0.5);
@@ -123,6 +139,7 @@
   @media (max-width: 400px) {
     .tasas { flex-direction: column; gap: 10px; }
     .modos { flex-direction: column; gap: 10px; }
+    .input-container { flex-direction: column; gap: 10px; }
     input { width: 80%; }
   }
 
@@ -144,8 +161,12 @@
     <button class="modo modo-venta" id="btnVenta">Venta</button>
   </div>
 
-  <div>
+  <div class="input-container">
     <input type="text" id="monto" placeholder="Ingresa monto" value="1">
+    <select id="moneda">
+      <option value="USD">USD</option>
+      <option value="PEN">PEN</option>
+    </select>
   </div>
 
   <h2 id="resultado"></h2>
@@ -164,6 +185,7 @@ const mostrarVenta = document.getElementById('mostrarTasaVenta');
 const btnCompra = document.getElementById('btnCompra');
 const btnVenta = document.getElementById('btnVenta');
 const inputMonto = document.getElementById('monto');
+const selectMoneda = document.getElementById('moneda');
 
 function formatearNumero(num) {
   if (num === '' || isNaN(num)) return '';
@@ -184,11 +206,17 @@ function actualizarResultado() {
     resultado.textContent = 'Ingrese un monto válido.';
     return;
   }
-  const tasa = modo === "compra" ? parseFloat(tasaCompra) : parseFloat(tasaVenta);
-  const convertido = monto * tasa;
-  const textoModo = modo === "compra" ? "Compra" : "Venta";
 
-  resultado.textContent = `${formatearNumero(monto)} USD = ${formatearNumero(convertido)} PEN (${textoModo} a ${tasa.toFixed(3)})`;
+  const tasa = modo === "compra" ? parseFloat(tasaCompra) : parseFloat(tasaVenta);
+  let convertido;
+
+  if (selectMoneda.value === "USD") {
+    convertido = monto * tasa;
+    resultado.textContent = `${formatearNumero(monto)} USD = ${formatearNumero(convertido)} PEN (${modo.charAt(0).toUpperCase() + modo.slice(1)})`;
+  } else {
+    convertido = monto / tasa;
+    resultado.textContent = `${formatearNumero(monto)} PEN = ${formatearNumero(convertido)} USD (${modo.charAt(0).toUpperCase() + modo.slice(1)})`;
+  }
 }
 
 function formatearInput() {
@@ -220,6 +248,7 @@ btnVenta.addEventListener('click', () => {
 });
 
 inputMonto.addEventListener('input', formatearInput);
+selectMoneda.addEventListener('change', actualizarResultado);
 
 async function cargarTasas() {
   try {
@@ -245,4 +274,5 @@ setInterval(() => { cargarTasas(); }, 10000);
 
 </body>
 </html>
+
 
