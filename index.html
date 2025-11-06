@@ -1,146 +1,248 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tipo de cambio Dólar a Sol</title>
-  <style>
-    body { font-family: Arial; text-align: center; background:#f4f4f4; margin-top:50px; }
-    .container { background:#fff; padding:25px; border-radius:10px; display:inline-block; box-shadow:0 0 10px rgba(0,0,0,0.1);}
-    input, button { padding:8px; margin:8px; font-size:1rem; }
-    h1 { color:#333; }
-    #resultado { margin-top:15px; font-size:1.3rem; font-weight:bold; color:#007b5e; }
-    .modo { color:white; border:none; border-radius:5px; cursor:pointer; width:120px; font-weight:bold; }
-    .modo-compra { background-color:#4CAF50; }
-    .modo-venta { background-color:#FF2400; }
-    .activo { box-shadow:0 0 10px rgba(0,0,0,0.3);}
-    .tasas { display:flex; justify-content:center; gap:20px; margin-bottom:5px; font-weight:bold; font-size:1.1rem;}
-    .tasa { padding:5px 15px; border-radius:8px; border:1px solid #ccc; min-width:120px; }
-    .tasa-activa-compra { background-color:#4CAF50; color:white; border-color:#388E3C; }
-    .tasa-activa-venta { background-color:#FF2400; color:white; border-color:#CC1F00; }
-    hr { margin: 20px 0; }
-    label { font-weight:bold; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tipo de cambio Dólar a Sol</title>
+
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<style>
+  body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #f0f4f8, #d9e2ec);
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  .container {
+    background: #ffffff;
+    padding: 30px 25px;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    width: 95%;
+    max-width: 450px;
+    text-align: center;
+  }
+
+  h1 {
+    color: #333;
+    margin-bottom: 25px;
+    font-size: 1.6rem;
+  }
+
+  .tasas {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 15px;
+    font-weight: bold;
+    font-size: 1.1rem;
+  }
+
+  .tasa {
+    padding: 8px 20px;
+    border-radius: 12px;
+    border: 1px solid #ccc;
+    min-width: 120px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+
+  .tasa-activa-compra {
+    background-color: #4CAF50;
+    color: white;
+    border-color: #388E3C;
+    transform: scale(1.05);
+  }
+
+  .tasa-activa-venta {
+    background-color: #FF2400;
+    color: white;
+    border-color: #CC1F00;
+    transform: scale(1.05);
+  }
+
+  .modos {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 15px;
+  }
+
+  .modo {
+    border: none;
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex: 1;
+  }
+
+  .modo-compra { background-color: #4CAF50; color: white; }
+  .modo-venta { background-color: #FF2400; color: white; }
+
+  .modo.activo {
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    transform: translateY(-2px);
+  }
+
+  input {
+    width: 60%;             /* ancho reducido */
+    padding: 10px 12px;
+    font-size: 1rem;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    margin-top: 8px;
+    text-align: center;     /* texto centrado */
+    transition: all 0.2s ease;
+  }
+
+  input:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0,123,255,0.5);
+  }
+
+  #resultado {
+    margin-top: 20px;
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #007b5e;
+    min-height: 30px;
+    transition: all 0.3s ease;
+  }
+
+  @media (max-width: 400px) {
+    .tasas { flex-direction: column; gap: 10px; }
+    .modos { flex-direction: column; gap: 10px; }
+    input { width: 80%; }
+  }
+
+  hr { margin: 25px 0; }
+</style>
 </head>
 <body>
-  <div class="container">
-    <h1>Tipo de cambio Dólar a Sol</h1>
 
-    <div class="tasas">
-      <div id="mostrarTasaCompra" class="tasa">Compra: --</div>
-      <div id="mostrarTasaVenta" class="tasa">Venta: --</div>
-    </div>
+<div class="container">
+  <h1>Tipo de cambio Dólar a Sol</h1>
 
-    <div>
-      <button class="modo modo-compra activo" id="btnCompra">🟢 Compra</button>
-      <button class="modo modo-venta" id="btnVenta">🔴 Venta</button>
-    </div>
-
-    <div>
-      <label>Monto (USD):</label>
-      <input type="text" id="monto" placeholder="Ingresa monto" value="1">
-    </div>
-
-    <h2 id="resultado"></h2>
-    <hr>
-   
+  <div class="tasas">
+    <div id="mostrarTasaCompra" class="tasa">Compra: --</div>
+    <div id="mostrarTasaVenta" class="tasa">Venta: --</div>
   </div>
 
-  <script>
-    let tasaCompra = 0;
-    let tasaVenta = 0;
-    let modo = "compra";
+  <div class="modos">
+    <button class="modo modo-compra activo" id="btnCompra">Compra</button>
+    <button class="modo modo-venta" id="btnVenta">Venta</button>
+  </div>
 
-    const resultado = document.getElementById('resultado');
-    const mostrarCompra = document.getElementById('mostrarTasaCompra');
-    const mostrarVenta = document.getElementById('mostrarTasaVenta');
-    const btnCompra = document.getElementById('btnCompra');
-    const btnVenta = document.getElementById('btnVenta');
-    const inputMonto = document.getElementById('monto');
+  <div>
+    <input type="text" id="monto" placeholder="Ingresa monto" value="1">
+  </div>
 
-    // Función para formatear números con separador de miles y sin redondeo automático
-    function formatearNumero(num) {
-      if (num === '' || isNaN(num)) return '';
-      return new Intl.NumberFormat('es-PE', { maximumFractionDigits: 20 }).format(num);
-    }
+  <h2 id="resultado"></h2>
+  <hr>
 
-    // Función para actualizar tasas en pantalla
-    function actualizarTasas() {
-      mostrarCompra.textContent = `Compra: ${parseFloat(tasaCompra).toFixed(3)}`;
-      mostrarVenta.textContent = `Venta: ${parseFloat(tasaVenta).toFixed(3)}`;
-      mostrarCompra.classList.toggle('tasa-activa-compra', modo === 'compra');
-      mostrarVenta.classList.toggle('tasa-activa-venta', modo === 'venta');
-    }
+</div>
 
-    // Función para calcular y mostrar el resultado
-    function actualizarResultado() {
-      let montoStr = inputMonto.value.replace(/,/g, '');
-      let monto = parseFloat(montoStr);
-      if (isNaN(monto) || monto < 0) {
-        resultado.textContent = 'Ingrese un monto válido.';
-        return;
-      }
-      const tasa = modo === "compra" ? parseFloat(tasaCompra) : parseFloat(tasaVenta);
-      const convertido = monto * tasa;
-      const textoModo = modo === "compra" ? "Compra" : "Venta";
+<script>
+let tasaCompra = 0;
+let tasaVenta = 0;
+let modo = "compra";
 
-      resultado.textContent = `${formatearNumero(monto)} USD = ${formatearNumero(convertido)} PEN (${textoModo} a ${tasa.toFixed(3)})`;
-    }
+const resultado = document.getElementById('resultado');
+const mostrarCompra = document.getElementById('mostrarTasaCompra');
+const mostrarVenta = document.getElementById('mostrarTasaVenta');
+const btnCompra = document.getElementById('btnCompra');
+const btnVenta = document.getElementById('btnVenta');
+const inputMonto = document.getElementById('monto');
 
-    // Formatear input mientras escribe el usuario
-    function formatearInput() {
-      let cursorPos = inputMonto.selectionStart;
-      let valor = inputMonto.value.replace(/,/g, '');
-      if (!isNaN(valor) && valor !== '') {
-        let partes = valor.split('.');
-        partes[0] = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-        inputMonto.value = partes.join('.');
-      }
-      inputMonto.setSelectionRange(cursorPos, cursorPos);
-      actualizarResultado();
-    }
+function formatearNumero(num) {
+  if (num === '' || isNaN(num)) return '';
+  return new Intl.NumberFormat('es-PE', { maximumFractionDigits: 20 }).format(num);
+}
 
-    // Eventos para cambiar modo
-    btnCompra.addEventListener('click', () => {
-      modo='compra';
-      btnCompra.classList.add('activo');
-      btnVenta.classList.remove('activo');
-      actualizarTasas();
-      actualizarResultado();
-    });
+function actualizarTasas() {
+  mostrarCompra.textContent = `Compra: ${parseFloat(tasaCompra).toFixed(3)}`;
+  mostrarVenta.textContent = `Venta: ${parseFloat(tasaVenta).toFixed(3)}`;
+  mostrarCompra.classList.toggle('tasa-activa-compra', modo === 'compra');
+  mostrarVenta.classList.toggle('tasa-activa-venta', modo === 'venta');
+}
 
-    btnVenta.addEventListener('click', () => {
-      modo='venta';
-      btnVenta.classList.add('activo');
-      btnCompra.classList.remove('activo');
-      actualizarTasas();
-      actualizarResultado();
-    });
+function actualizarResultado() {
+  let montoStr = inputMonto.value.replace(/,/g, '');
+  let monto = parseFloat(montoStr);
+  if (isNaN(monto) || monto < 0) {
+    resultado.textContent = 'Ingrese un monto válido.';
+    return;
+  }
+  const tasa = modo === "compra" ? parseFloat(tasaCompra) : parseFloat(tasaVenta);
+  const convertido = monto * tasa;
+  const textoModo = modo === "compra" ? "Compra" : "Venta";
 
-    inputMonto.addEventListener('input', formatearInput);
+  resultado.textContent = `${formatearNumero(monto)} USD = ${formatearNumero(convertido)} PEN (${textoModo} a ${tasa.toFixed(3)})`;
+}
 
-    // Cargar tasas desde JSON
-    async function cargarTasas() {
-      try {
-        const response = await fetch('tasas.json');
-        if (!response.ok) throw new Error('No se pudo cargar tasas.json');
-        const data = await response.json();
-        tasaCompra = parseFloat(data.compra).toFixed(3);
-        tasaVenta = parseFloat(data.venta).toFixed(3);
-        actualizarTasas();
-        actualizarResultado();
-      } catch (error) {
-        alert('Error cargando tasas: ' + error + '\nSe usarán valores por defecto.');
-        tasaCompra = 3.750;
-        tasaVenta = 3.850;
-        actualizarTasas();
-        actualizarResultado();
-      }
-    }
+function formatearInput() {
+  let cursorPos = inputMonto.selectionStart;
+  let valor = inputMonto.value.replace(/,/g, '');
+  if (!isNaN(valor) && valor !== '') {
+    let partes = valor.split('.');
+    partes[0] = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    inputMonto.value = partes.join('.');
+  }
+  inputMonto.setSelectionRange(cursorPos, cursorPos);
+  actualizarResultado();
+}
 
-    // Inicialización
-    cargarTasas();
-  </script>
+btnCompra.addEventListener('click', () => {
+  modo='compra';
+  btnCompra.classList.add('activo');
+  btnVenta.classList.remove('activo');
+  actualizarTasas();
+  actualizarResultado();
+});
+
+btnVenta.addEventListener('click', () => {
+  modo='venta';
+  btnVenta.classList.add('activo');
+  btnCompra.classList.remove('activo');
+  actualizarTasas();
+  actualizarResultado();
+});
+
+inputMonto.addEventListener('input', formatearInput);
+
+async function cargarTasas() {
+  try {
+    const response = await fetch(`tasas.json?v=${new Date().getTime()}`);
+    if (!response.ok) throw new Error('No se pudo cargar tasas.json');
+    const data = await response.json();
+    tasaCompra = parseFloat(data.compra).toFixed(3);
+    tasaVenta = parseFloat(data.venta).toFixed(3);
+    actualizarTasas();
+    actualizarResultado();
+  } catch (error) {
+    console.warn('Error cargando tasas: ' + error + '\nSe usarán valores por defecto.');
+    tasaCompra = 3.750;
+    tasaVenta = 3.850;
+    actualizarTasas();
+    actualizarResultado();
+  }
+}
+
+cargarTasas();
+setInterval(() => { cargarTasas(); }, 10000);
+</script>
+
 </body>
 </html>
 
