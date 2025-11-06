@@ -18,7 +18,6 @@
     .tasa { padding:5px 15px; border-radius:8px; border:1px solid #ccc; min-width:120px; }
     .tasa-activa-compra { background-color:#4CAF50; color:white; border-color:#388E3C; }
     .tasa-activa-venta { background-color:#FF2400; color:white; border-color:#CC1F00; }
-    .admin { background: #f9f9f9; padding: 10px; border-radius: 6px; display:none; margin-top:20px; }
     hr { margin: 20px 0; }
     label { font-weight:bold; }
   </style>
@@ -28,8 +27,8 @@
     <h1>Tipo de cambio Dólar a Sol</h1>
 
     <div class="tasas">
-      <div id="mostrarTasaCompra" class="tasa">Compra: 3.750</div>
-      <div id="mostrarTasaVenta" class="tasa">Venta: 3.850</div>
+      <div id="mostrarTasaCompra" class="tasa">Compra: --</div>
+      <div id="mostrarTasaVenta" class="tasa">Venta: --</div>
     </div>
 
     <div>
@@ -43,36 +42,14 @@
     </div>
 
     <h2 id="resultado"></h2>
-
     <hr>
-
-    <!-- Sección administrador -->
-    <div class="pin-section">
-      <h3>Administrador</h3>
-      <input type="password" id="pinInput" placeholder="Introduce el PIN">
-      <button onclick="verificarPIN()">Ingresar</button>
-    </div>
-
-    <div class="admin" id="panelAdmin">
-      <h3>Configuración de Tasas</h3>
-      <div>
-        <label>Tasa de Compra (USD → PEN):</label>
-        <input type="number" id="tasaCompra" value="3.750" step="0.001" max="100">
-      </div>
-      <div>
-        <label>Tasa de Venta (USD → PEN):</label>
-        <input type="number" id="tasaVenta" value="3.850" step="0.001" max="100">
-      </div>
-      <button onclick="guardarTasas()">Guardar Tasas</button>
-    </div>
+    <p>⚠️ Las tasas se editan solo modificando el archivo <strong>tasas.json</strong> en GitHub.</p>
   </div>
 
   <script>
-    // Tasas iniciales (editar aquí para cambiar globalmente)
-    let tasaCompra = 3.355;
-    let tasaVenta = 3.395;
+    let tasaCompra = 0;
+    let tasaVenta = 0;
     let modo = "compra";
-    const ADMIN_PIN = "261501"; // PIN de administrador
 
     const resultado = document.getElementById('resultado');
     const mostrarCompra = document.getElementById('mostrarTasaCompra');
@@ -80,13 +57,14 @@
     const btnCompra = document.getElementById('btnCompra');
     const btnVenta = document.getElementById('btnVenta');
     const inputMonto = document.getElementById('monto');
-    const panelAdmin = document.getElementById('panelAdmin');
 
+    // Función para formatear números con separador de miles y sin redondeo automático
     function formatearNumero(num) {
       if (num === '' || isNaN(num)) return '';
       return new Intl.NumberFormat('es-PE', { maximumFractionDigits: 20 }).format(num);
     }
 
+    // Función para actualizar tasas en pantalla
     function actualizarTasas() {
       mostrarCompra.textContent = `Compra: ${parseFloat(tasaCompra).toFixed(3)}`;
       mostrarVenta.textContent = `Venta: ${parseFloat(tasaVenta).toFixed(3)}`;
@@ -94,6 +72,7 @@
       mostrarVenta.classList.toggle('tasa-activa-venta', modo === 'venta');
     }
 
+    // Función para calcular y mostrar el resultado
     function actualizarResultado() {
       let montoStr = inputMonto.value.replace(/,/g, '');
       let monto = parseFloat(montoStr);
@@ -108,6 +87,7 @@
       resultado.textContent = `${formatearNumero(monto)} USD = ${formatearNumero(convertido)} PEN (${textoModo} a ${tasa.toFixed(3)})`;
     }
 
+    // Formatear input mientras escribe el usuario
     function formatearInput() {
       let cursorPos = inputMonto.selectionStart;
       let valor = inputMonto.value.replace(/,/g, '');
@@ -120,6 +100,7 @@
       actualizarResultado();
     }
 
+    // Eventos para cambiar modo
     btnCompra.addEventListener('click', () => {
       modo='compra';
       btnCompra.classList.add('activo');
@@ -138,27 +119,27 @@
 
     inputMonto.addEventListener('input', formatearInput);
 
-    function verificarPIN() {
-      const pinIngresado = document.getElementById('pinInput').value;
-      if (pinIngresado === ADMIN_PIN) {
-        panelAdmin.style.display = 'block';
-        document.querySelector('.pin-section').style.display = 'none';
-      } else {
-        alert('PIN incorrecto.');
+    // Cargar tasas desde JSON
+    async function cargarTasas() {
+      try {
+        const response = await fetch('tasas.json');
+        if (!response.ok) throw new Error('No se pudo cargar tasas.json');
+        const data = await response.json();
+        tasaCompra = parseFloat(data.compra).toFixed(3);
+        tasaVenta = parseFloat(data.venta).toFixed(3);
+        actualizarTasas();
+        actualizarResultado();
+      } catch (error) {
+        alert('Error cargando tasas: ' + error + '\nSe usarán valores por defecto.');
+        tasaCompra = 3.750;
+        tasaVenta = 3.850;
+        actualizarTasas();
+        actualizarResultado();
       }
     }
 
-    function guardarTasas() {
-      tasaCompra = parseFloat(document.getElementById('tasaCompra').value).toFixed(3);
-      tasaVenta = parseFloat(document.getElementById('tasaVenta').value).toFixed(3);
-      actualizarTasas();
-      actualizarResultado();
-      alert('✅ Tasas actualizadas. Recuerda que este cambio se ve reflejado en todos los dispositivos al actualizar el archivo HTML.');
-    }
-
     // Inicialización
-    actualizarTasas();
-    actualizarResultado();
+    cargarTasas();
   </script>
 </body>
 </html>
