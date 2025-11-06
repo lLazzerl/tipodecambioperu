@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tipo de cambio Dólar a Sol</title>
+  <style>
+    body { font-family: Arial; text-align: center; background:#f4f4f4; margin-top:50px; }
+    .container { background:#fff; padding:25px; border-radius:10px; display:inline-block; box-shadow:0 0 10px rgba(0,0,0,0.1);}
+    input, button { padding:8px; margin:8px; font-size:1rem; }
+    h1 { color:#333; }
+    #resultado { margin-top:15px; font-size:1.3rem; font-weight:bold; color:#007b5e; }
+    .modo { color:white; border:none; border-radius:5px; cursor:pointer; width:120px; font-weight:bold; }
+    .modo-compra { background-color:#4CAF50; }
+    .modo-venta { background-color:#FF2400; }
+    .activo { box-shadow:0 0 10px rgba(0,0,0,0.3);}
+    .tasas { display:flex; justify-content:center; gap:20px; margin-bottom:5px; font-weight:bold; font-size:1.1rem;}
+    .tasa { padding:5px 15px; border-radius:8px; border:1px solid #ccc; min-width:120px; }
+    .tasa-activa-compra { background-color:#4CAF50; color:white; border-color:#388E3C; }
+    .tasa-activa-venta { background-color:#FF2400; color:white; border-color:#CC1F00; }
+    .admin { background: #f9f9f9; padding: 10px; border-radius: 6px; display:none; margin-top:20px; }
+    hr { margin: 20px 0; }
+    label { font-weight:bold; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Tipo de cambio Dólar a Sol</h1>
+
+    <div class="tasas">
+      <div id="mostrarTasaCompra" class="tasa">Compra: 3.750</div>
+      <div id="mostrarTasaVenta" class="tasa">Venta: 3.850</div>
+    </div>
+
+    <div>
+      <button class="modo modo-compra activo" id="btnCompra">🟢 Compra</button>
+      <button class="modo modo-venta" id="btnVenta">🔴 Venta</button>
+    </div>
+
+    <div>
+      <label>Monto (USD):</label>
+      <input type="text" id="monto" placeholder="Ingresa monto" value="1">
+    </div>
+
+    <h2 id="resultado"></h2>
+
+    <hr>
+
+    <!-- Sección administrador -->
+    <div class="pin-section">
+      <h3>Administrador</h3>
+      <input type="password" id="pinInput" placeholder="Introduce el PIN">
+      <button onclick="verificarPIN()">Ingresar</button>
+    </div>
+
+    <div class="admin" id="panelAdmin">
+      <h3>Configuración de Tasas</h3>
+      <div>
+        <label>Tasa de Compra (USD → PEN):</label>
+        <input type="number" id="tasaCompra" value="3.750" step="0.001" max="100">
+      </div>
+      <div>
+        <label>Tasa de Venta (USD → PEN):</label>
+        <input type="number" id="tasaVenta" value="3.850" step="0.001" max="100">
+      </div>
+      <button onclick="guardarTasas()">Guardar Tasas</button>
+    </div>
+  </div>
+
+  <script>
+    let tasaCompra = 3.75;
+    let tasaVenta = 3.85;
+    let modo = "compra";
+    const ADMIN_PIN = "261501"; // <-- PIN actualizado
+
+    const resultado = document.getElementById('resultado');
+    const mostrarCompra = document.getElementById('mostrarTasaCompra');
+    const mostrarVenta = document.getElementById('mostrarTasaVenta');
+    const btnCompra = document.getElementById('btnCompra');
+    const btnVenta = document.getElementById('btnVenta');
+    const inputMonto = document.getElementById('monto');
+    const panelAdmin = document.getElementById('panelAdmin');
+
+    function formatearNumero(num) {
+      if (num === '' || isNaN(num)) return '';
+      return new Intl.NumberFormat('es-PE', { maximumFractionDigits: 20 }).format(num);
+    }
+
+    function actualizarTasas() {
+      mostrarCompra.textContent = `Compra: ${parseFloat(tasaCompra).toFixed(3)}`;
+      mostrarVenta.textContent = `Venta: ${parseFloat(tasaVenta).toFixed(3)}`;
+      mostrarCompra.classList.toggle('tasa-activa-compra', modo === 'compra');
+      mostrarVenta.classList.toggle('tasa-activa-venta', modo === 'venta');
+    }
+
+    function actualizarResultado() {
+      let montoStr = inputMonto.value.replace(/,/g, '');
+      let monto = parseFloat(montoStr);
+      if (isNaN(monto) || monto < 0) {
+        resultado.textContent = 'Ingrese un monto válido.';
+        return;
+      }
+      const tasa = modo === "compra" ? parseFloat(tasaCompra) : parseFloat(tasaVenta);
+      const convertido = monto * tasa;
+      const textoModo = modo === "compra" ? "Compra" : "Venta";
+
+      resultado.textContent = `${formatearNumero(monto)} USD = ${formatearNumero(convertido)} PEN (${textoModo} a ${tasa.toFixed(3)})`;
+    }
+
+    function formatearInput() {
+      let cursorPos = inputMonto.selectionStart;
+      let valor = inputMonto.value.replace(/,/g, '');
+      if (!isNaN(valor) && valor !== '') {
+        let partes = valor.split('.');
+        partes[0] = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        inputMonto.value = partes.join('.');
+      }
+      inputMonto.setSelectionRange(cursorPos, cursorPos);
+      actualizarResultado();
+    }
+
+    btnCompra.addEventListener('click', () => {
+      modo='compra';
+      btnCompra.classList.add('activo');
+      btnVenta.classList.remove('activo');
+      actualizarTasas();
+      actualizarResultado();
+    });
+
+    btnVenta.addEventListener('click', () => {
+      modo='venta';
+      btnVenta.classList.add('activo');
+      btnCompra.classList.remove('activo');
+      actualizarTasas();
+      actualizarResultado();
+    });
+
+    inputMonto.addEventListener('input', formatearInput);
+
+    function verificarPIN() {
+      const pinIngresado = document.getElementById('pinInput').value;
+      if (pinIngresado === ADMIN_PIN) {
+        panelAdmin.style.display = 'block';
+        document.querySelector('.pin-section').style.display = 'none';
+      } else {
+        alert('PIN incorrecto.');
+      }
+    }
+
+    function guardarTasas() {
+      tasaCompra = parseFloat(document.getElementById('tasaCompra').value).toFixed(3);
+      tasaVenta = parseFloat(document.getElementById('tasaVenta').value).toFixed(3);
+      localStorage.setItem('tasaCompra', tasaCompra);
+      localStorage.setItem('tasaVenta', tasaVenta);
+      actualizarTasas();
+      actualizarResultado();
+      alert('✅ Tasas guardadas.');
+    }
+
+    // inicialización
+    const guardadaCompra = localStorage.getItem('tasaCompra');
+    const guardadaVenta = localStorage.getItem('tasaVenta');
+    if (guardadaCompra) tasaCompra = parseFloat(guardadaCompra);
+    if (guardadaVenta) tasaVenta = parseFloat(guardadaVenta);
+
+    actualizarTasas();
+    actualizarResultado();
+  </script>
+</body>
+</html>
